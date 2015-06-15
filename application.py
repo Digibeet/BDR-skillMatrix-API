@@ -1,3 +1,4 @@
+from collections import defaultdict
 from flask import Flask
 import json
 from flask.ext.mysqldb import MySQL
@@ -51,10 +52,10 @@ def send_partials():
         print(error.msg)
     else:
         print("Query succeeded")
-    result = []
+    result = defaultdict(list)
     for name, group in cursor:
         print name, group
-        result.append({"name": name, "group": group})
+        result[group].append({"skill": name})
     cursor.close()
     print result
     return json.dumps(result)
