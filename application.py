@@ -2,10 +2,10 @@ from flask import Flask
 import json
 #import mysql.connector
 
-mysqlConnection = mysql.connector.connect(user='BDR', password='BDRforlife',
-    host='bdr.cckczjviguyp.us-east-1.rds.amazonaws.com',
-    port=3306,
-    database='BDR')
+#mysqlConnection = mysql.connector.connect(user='BDR', password='BDRforlife',
+#    host='bdr.cckczjviguyp.us-east-1.rds.amazonaws.com',
+#    port=3306,
+#    database='BDR')
 
 # print a nice greeting.
 def say_hello(username = "World"):
