@@ -1,12 +1,6 @@
 from flask import Flask
 import json
 from flask.ext.mysqldb import MySQL
-#import mysql.connector
-
-#mysqlConnection = mysql.connector.connect(user='BDR', password='BDRforlife',
-#    host='bdr.cckczjviguyp.us-east-1.rds.amazonaws.com',
-#    port=3306,
-#    database='BDR')
 
 # print a nice greeting.
 def say_hello(username = "World"):
@@ -25,6 +19,14 @@ footer_text = '</body>\n</html>'
 # EB looks for an 'application' callable by default.
 application = Flask(__name__)
 
+#setup mysql connection
+application.config['MYSQL_USER']='BDR'
+application.config['MYSQL_PASSWORD']='BDRforlife'
+application.config['MYSQL_HOST']='bdr.cckczjviguyp.us-east-1.rds.amazonaws.com'
+application.config['MYSQL_PORT']=3306
+application.config['MYSQL_DB']='BDR'
+mysql = MySQL(application)
+
 # add a rule for the index page.
 application.add_url_rule('/', 'index', (lambda: header_text +
     say_hello() + instructions + footer_text))
@@ -41,20 +43,20 @@ add_skill = ("INSERT INTO skillMatrix "
 
 @application.route('/skills')
 def send_partials():
-    #cursor = mysqlConnection.cursor()
-    #query = ("SELECT * FROM skillMatrix")
-    #try:
-    #    cursor.execute(query)
-    #except mysql.connector.Error as error:
-    #    print(error.msg)
-    #else:
-    #    print("Query succeeded")
+    cursor = mysql.connection.cursor()
+    query = ("SELECT * FROM skillMatrix")
+    try:
+        cursor.execute(query)
+    except mysql.connector.Error as error:
+        print(error.msg)
+    else:
+        print("Query succeeded")
     result = []
-    #for name, group in cursor:
-    #    print name, group
-    #    result.append({"name": name, "group": group})
-    #cursor.close()
-    #print result
+    for name, group in cursor:
+        print name, group
+        result.append({"name": name, "group": group})
+    cursor.close()
+    print result
     return json.dumps(result)
 
 # run the app.
