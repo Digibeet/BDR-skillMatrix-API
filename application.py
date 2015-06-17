@@ -85,6 +85,13 @@ add_skill = ("INSERT INTO skillMatrix "
     "(skill_name, skill_group_name) "
     "VALUES (%s, %s)")
 
+def add_skill_group(parameters):
+    query =("INSERT INTO skillGroups "
+    "(skill_group_name) "
+    "VALUES ('" + parameters['group'] + "')")
+    print query
+    return query
+
 def add_scoring(parameters):
     query = "INSERT INTO scorings (user_id, skill_name, score) VALUES (" + parameters['user_id'] + ",'" + parameters['skill_name'] + "'," + parameters['score'] + ") ON DUPLICATE KEY UPDATE score = " + parameters['score']
     print query
@@ -96,6 +103,15 @@ def score_skill_for_account(skill, score, account):
     conn = mysql.connection
     cursor = conn.cursor()
     cursor.execute(add_scoring({"user_id": account, "skill_name": skill, "score":score}))
+    conn.commit()
+    return ("OK")
+
+@application.route('/addSkillGroup/<group>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def add_skillGroup_to_matrix(group):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute(add_skill_group({"group": group}))
     conn.commit()
     return ("OK")
     
