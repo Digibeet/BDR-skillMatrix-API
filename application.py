@@ -133,9 +133,14 @@ def get_all_skills_per_group_from_user(user):
                  "WHERE user_id = " + user + " AND skill_name = '" + name + "'")
         print (query)
         skillCursor.execute(query)
-        for id, skill, score in skillCursor:
-            result[group].append({"skill": skill, "score": score})
-            skillCursor.close()
+        scoring = skillCursor.fetchall()
+        if len(scoring) == 0:
+            result[group].append({"skill": name, "score": 0})
+        else:
+            print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            print scoring
+            result[group].append({"skill": name, "score": scoring[0][2]})
+        skillCursor.close()
     matrixCursor.close()
     return json.dumps(result)
 
