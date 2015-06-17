@@ -164,7 +164,7 @@ def get_all_skills_per_group_from_user(user):
 def name_from_user(user):
     print ("getting name for user ", user)
     cursor = mysql.connection.cursor()
-    query = ("SELECT user_name FROM accounts WHERE user_id = 1")
+    query = ("SELECT user_name FROM accounts WHERE user_id = " + user)
     print query
     cursor.execute(query)
     result = {}
