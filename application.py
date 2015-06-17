@@ -85,16 +85,17 @@ add_skill = ("INSERT INTO skillMatrix "
     "(skill_name, skill_group_name) "
     "VALUES (%s, %s)")
 
-add_scoring = ("INSERT INTO scorings "
-    "(user_name, skill_name, score) "
-    "VALUES (%s, %s, %s)")
+def add_scoring(parameters):
+    query = "INSERT INTO scorings (user_id, skill_name, score) VALUES (" + parameters['user_id'] + ",'" + parameters['skill_name'] + "'," + parameters['score'] + ") ON DUPLICATE KEY UPDATE score = " + parameters['score']
+    print query
+    return query
 
 @application.route('/skills/score/<skill>/<score>/<account>', methods=['Get', 'POST'])
 @crossdomain(origin='*')
 def score_skill_for_account(skill, score, account):
     conn = mysql.connection
     cursor = conn.cursor()
-    cursor.execute(add_scoring, (account, skill, score))
+    cursor.execute(add_scoring({"user_id": account, "skill_name": skill, "score":score}))
     conn.commit()
     return ("OK")
     
@@ -137,11 +138,22 @@ def get_all_skills_per_group_from_user(user):
         if len(scoring) == 0:
             result[group].append({"skill": name, "score": 0})
         else:
-            print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-            print scoring
             result[group].append({"skill": name, "score": scoring[0][2]})
         skillCursor.close()
     matrixCursor.close()
+    return json.dumps(result)
+
+@application.route('/user/<user>/name')
+@crossdomain(origin='*')
+def name_from_user(user):
+    print ("getting name for user ", user)
+    cursor = mysql.connection.cursor()
+    query = ("SELECT user_name FROM accounts WHERE user_id = 1")
+    print query
+    cursor.execute(query)
+    result = {}
+    for name in cursor:
+        result = {'name': name[0]}
     return json.dumps(result)
 
 # run the app.
