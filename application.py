@@ -85,21 +85,58 @@ add_skill = ("INSERT INTO skillMatrix "
     "(skill_name, skill_group_name) "
     "VALUES (%s, %s)")
 
+add_scoring = ("INSERT INTO scorings "
+    "(user_name, skill_name, score) "
+    "VALUES (%s, %s, %s)")
+
+@application.route('/skills/score/<skill>/<score>/<account>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def score_skill_for_account(skill, score, account):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute(add_scoring, (account, skill, score))
+    conn.commit()
+    return ("OK")
+    
+@application.route('/addSkill/<group>/<skill>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def add_skill_to_matrix(group, skill):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute(add_skill, (skill, group))
+    conn.commit()
+    return ("OK")
+
 @application.route('/skills')
 @crossdomain(origin='*')
-def send_partials():
+def get_all_skills_per_group():
     cursor = mysql.connection.cursor()
     query = ("SELECT * FROM skillMatrix")
-    try:
-        cursor.execute(query)
-    except mysql.connector.Error as error:
-        print(error.msg)
-    else:
-        print("Query succeeded")
+    cursor.execute(query)
     result = defaultdict(list)
     for name, group in cursor:
         result[group].append({"skill": name})
     cursor.close()
+    return json.dumps(result)
+
+@application.route('/skills/<user>')
+@crossdomain(origin='*')
+def get_all_skills_per_group_from_user(user):
+    print ("getting matrix for user ", user)
+    matrixCursor = mysql.connection.cursor()
+    query = ("SELECT * FROM skillMatrix")
+    matrixCursor.execute(query)
+    result = defaultdict(list)
+    for name, group in matrixCursor:
+        skillCursor = mysql.connection.cursor()
+        query = ("SELECT * FROM scorings "
+                 "WHERE user_id = " + user + " AND skill_name = '" + name + "'")
+        print (query)
+        skillCursor.execute(query)
+        for id, skill, score in skillCursor:
+            result[group].append({"skill": skill, "score": score})
+            skillCursor.close()
+    matrixCursor.close()
     return json.dumps(result)
 
 # run the app.
