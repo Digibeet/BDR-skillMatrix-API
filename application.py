@@ -66,7 +66,7 @@ application = Flask(__name__)
 #setup mysql connection
 application.config['MYSQL_USER']='BDR'
 application.config['MYSQL_PASSWORD']='BDRforlife'
-application.config['MYSQL_HOST']='bdr.cckczjviguyp.us-east-1.rds.amazonaws.com'
+application.config['MYSQL_HOST']='bdr.c7uzpeqksgw0.eu-central-1.rds.amazonaws.com'
 application.config['MYSQL_PORT']=3306
 application.config['MYSQL_DB']='BDR'
 mysql = MySQL(application)
