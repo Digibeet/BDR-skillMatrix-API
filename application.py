@@ -85,6 +85,9 @@ add_skill = ("INSERT INTO skillMatrix "
     "(skill_name, skill_group_name) "
     "VALUES (%s, %s)")
 
+delete_skill = ("DELETE FROM skillMatrix "
+    "WHERE skill_name=%s AND skill_group_name=%s; ")
+
 def add_skill_group(parameters):
     query =("INSERT INTO skillGroups "
     "(skill_group_name) "
@@ -121,6 +124,15 @@ def add_skill_to_matrix(group, skill):
     conn = mysql.connection
     cursor = conn.cursor()
     cursor.execute(add_skill, (skill, group))
+    conn.commit()
+    return ("OK")
+
+@application.route('/deleteSkill/<group>/<skill>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def delete_skill_from_matrix(group, skill):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute(delete_skill, (skill, group))
     conn.commit()
     return ("OK")
 
