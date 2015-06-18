@@ -142,9 +142,9 @@ def get_all_skills_per_group():
     cursor = mysql.connection.cursor()
     query = ("SELECT * FROM skillMatrix")
     cursor.execute(query)
-    result = defaultdict(list)
+    result = defaultdict(dict)
     for name, group in cursor:
-        result[group].append({"skill": name})
+        result[group][name] = name
     cursor.close()
     return json.dumps(result)
 
