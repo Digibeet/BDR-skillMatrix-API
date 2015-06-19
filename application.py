@@ -4,6 +4,7 @@ from flask import Flask, make_response, request, current_app
 import json
 from flask.ext.mysqldb import MySQL
 from functools import update_wrapper
+import random
 
 def crossdomain(origin=None, methods=None, headers=None,
 max_age=21600, attach_to_all=True,
@@ -85,6 +86,12 @@ add_skill = ("INSERT INTO skillMatrix "
     "(skill_name, skill_group_name) "
     "VALUES (%s, %s)")
 
+def add_account(parameters):
+    print parameters
+    query = "INSERT INTO accounts (user_id, user_name, password) VALUES ("+parameters['id']+", '"+parameters['name']+"', '"+parameters['password']+"')"
+    print query
+    return query
+
 delete_skill = ("DELETE FROM skillMatrix "
     "WHERE skill_name=%s AND skill_group_name=%s; ")
 
@@ -106,6 +113,17 @@ def score_skill_for_account(skill, score, account):
     conn = mysql.connection
     cursor = conn.cursor()
     cursor.execute(add_scoring({"user_id": account, "skill_name": skill, "score":score}))
+    conn.commit()
+    return ("OK")
+
+@application.route('/addUser/<name>/<password>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def add_account_to_users(name, password):
+    id = random.randrange(1000000000)
+    print id
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute(add_account({"id":str(id), "name":name, "password": password}))
     conn.commit()
     return ("OK")
 
@@ -182,6 +200,19 @@ def name_from_user(user):
     result = {}
     for name in cursor:
         result = {'name': name[0]}
+    return json.dumps(result)
+
+@application.route('/user/<user>/password/<password>')
+@crossdomain(origin='*')
+def id_from_user_password_combination(user, password):
+    print ("getting id for user ", user, " with password ", password)
+    cursor = mysql.connection.cursor()
+    query = ("SELECT user_id FROM accounts WHERE user_name = '" + user + "' AND password = '" + password + "'")
+    print query
+    cursor.execute(query)
+    result = {}
+    for id in cursor:
+        result = {'id': id[0]}
     return json.dumps(result)
 
 # run the app.
