@@ -7,6 +7,8 @@ from functools import update_wrapper
 import random
 import time
 
+today = str(time.strftime("%Y-%m-%d"))
+
 def crossdomain(origin=None, methods=None, headers=None,
 max_age=21600, attach_to_all=True,
 automatic_options=True):
@@ -89,7 +91,7 @@ add_skill = ("INSERT INTO skillMatrix "
 
 def add_account(parameters):
     print parameters
-    query = "INSERT INTO accounts (user_id, user_name, password) VALUES ("+parameters['id']+", '"+parameters['name']+"', '"+parameters['password']+"')"
+    query = "INSERT INTO accounts (user_id, user_name, password, creation_date) VALUES ("+parameters['id']+", '"+parameters['name']+"', '"+parameters['password']+"', '"+parameters['date']+"')"
     print query
     return query
 
@@ -104,7 +106,7 @@ def add_skill_group(parameters):
     return query
 
 def add_scoring(parameters):
-    query = "INSERT INTO scorings (user_id, skill_name, score) VALUES (" + parameters['user_id'] + ",'" + parameters['skill_name'] + "'," + parameters['score'] + ") ON DUPLICATE KEY UPDATE score = " + parameters['score']
+    query = "INSERT INTO scorings (user_id, skill_name, score, score_date) VALUES (" + parameters['user_id'] + ",'" + parameters['skill_name'] + "'," + parameters['score'] +",'"+parameters['date']+ "') ON DUPLICATE KEY UPDATE score = " + parameters['score']
     print query
     return query
 
@@ -113,7 +115,7 @@ def add_scoring(parameters):
 def score_skill_for_account(skill, score, account):
     conn = mysql.connection
     cursor = conn.cursor()
-    cursor.execute(add_scoring({"user_id": account, "skill_name": skill, "score":score}))
+    cursor.execute(add_scoring({"user_id": account, "skill_name": skill, "score":score, "date": today}))
     conn.commit()
     return ("OK")
 
@@ -124,7 +126,7 @@ def add_account_to_users(name, password):
     print id
     conn = mysql.connection
     cursor = conn.cursor()
-    cursor.execute(add_account({"id":str(id), "name":name, "password": password}))
+    cursor.execute(add_account({"id":str(id), "name":name, "password": password, "date": today}))
     conn.commit()
     return ("OK")
 
