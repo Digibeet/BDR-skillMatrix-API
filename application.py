@@ -98,6 +98,10 @@ def add_account(parameters):
 delete_skill = ("DELETE FROM skillMatrix "
     "WHERE skill_name=%s AND skill_group_name=%s; ")
 
+def delete_account(account):
+    query = "DELETE FROM accounts WHERE user_name='" +account+"'"
+    return query
+
 def add_skill_group(parameters):
     query =("INSERT INTO skillGroups "
     "(skill_group_name) "
@@ -157,6 +161,15 @@ def delete_skill_from_matrix(group, skill):
     conn.commit()
     return ("OK")
 
+@application.route('/deleteAccount/<account>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def delete_account_from_accounts(account):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute(delete_account(account))
+    conn.commit()
+    return ("Account " + account + " deleted")
+
 @application.route('/skills')
 @crossdomain(origin='*')
 def get_all_skills_per_group():
@@ -200,8 +213,8 @@ def get_all_accounts():
     cursor.execute(query)
     result = {}
     for id, name, password, date in cursor:
-        result[name] = {'id': id, 'password': password, 'date': date.strftime("%Y-%m-%d")}
-    print(result)
+        result[name] = {'id': id, 'date': date.strftime("%Y-%m-%d")}
+    del result['BDRadmin']
     return json.dumps(result)
 
 @application.route('/user/<user>/name')
