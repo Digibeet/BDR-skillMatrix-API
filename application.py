@@ -5,6 +5,7 @@ import json
 from flask.ext.mysqldb import MySQL
 from functools import update_wrapper
 import random
+import time
 
 def crossdomain(origin=None, methods=None, headers=None,
 max_age=21600, attach_to_all=True,
@@ -189,9 +190,21 @@ def get_all_skills_per_group_from_user(user):
     matrixCursor.close()
     return json.dumps(result)
 
+@application.route('/accounts')
+@crossdomain(origin='*')
+def get_all_accounts():
+    cursor = mysql.connection.cursor()
+    query = ("SELECT * FROM accounts")
+    cursor.execute(query)
+    result = {}
+    for id, name, password, date in cursor:
+        result[name] = {'id': id, 'password': password, 'date': date.strftime("%Y-%m-%d")}
+    print(result)
+    return json.dumps(result)
+
 @application.route('/user/<user>/name')
 @crossdomain(origin='*')
-def name_from_user(user):
+def get_name_from_user(user):
     print ("getting name for user ", user)
     cursor = mysql.connection.cursor()
     query = ("SELECT user_name FROM accounts WHERE user_id = " + user)
@@ -204,7 +217,7 @@ def name_from_user(user):
 
 @application.route('/user/<user>/password/<password>')
 @crossdomain(origin='*')
-def id_from_user_password_combination(user, password):
+def get_id_from_user_password_combination(user, password):
     print ("getting id for user ", user, " with password ", password)
     cursor = mysql.connection.cursor()
     query = ("SELECT user_id FROM accounts WHERE user_name = '" + user + "' AND password = '" + password + "'")
