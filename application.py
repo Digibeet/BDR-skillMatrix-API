@@ -91,7 +91,7 @@ add_skill = ("INSERT INTO skillMatrix "
 
 def add_account(parameters):
     print parameters
-    query = "INSERT INTO accounts (user_id, user_name, password, creation_date) VALUES ("+parameters['id']+", '"+parameters['name']+"', '"+parameters['password']+"', '"+parameters['date']+"')"
+    query = "INSERT INTO accounts (user_id, user_name, password, email, phone, creation_date) VALUES ("+parameters['id']+", '"+parameters['name']+"', '"+parameters['password']+"', '"+parameters['email']+"', '"+parameters['phone']+"', '"+parameters['date']+"')"
     print query
     return query
 
@@ -123,14 +123,14 @@ def score_skill_for_account(skill, score, account):
     conn.commit()
     return ("OK")
 
-@application.route('/addUser/<name>/<password>', methods=['Get', 'POST'])
+@application.route('/addUser/<name>/<password>/<email>/<phone>', methods=['Get', 'POST'])
 @crossdomain(origin='*')
-def add_account_to_users(name, password):
+def add_account_to_users(name, password, email, phone):
     id = random.randrange(1000000000)
     print id
     conn = mysql.connection
     cursor = conn.cursor()
-    cursor.execute(add_account({"id":str(id), "name":name, "password": password, "date": today}))
+    cursor.execute(add_account({"id":str(id), "name":name, "password": password, "email": email, "phone": phone, "date": today}))
     conn.commit()
     return ("OK")
 
@@ -209,11 +209,11 @@ def get_all_skills_per_group_from_user(user):
 @crossdomain(origin='*')
 def get_all_accounts():
     cursor = mysql.connection.cursor()
-    query = ("SELECT * FROM accounts")
+    query = ("SELECT user_id, user_name, email, phone, creation_date FROM accounts")
     cursor.execute(query)
     result = {}
-    for id, name, password, date in cursor:
-        result[name] = {'id': id, 'date': date.strftime("%Y-%m-%d")}
+    for id, name, email, phone, date in cursor:
+        result[name] = {'id': id, 'email': email, 'phone': phone, 'date': date.strftime("%Y-%m-%d")}
     del result['BDRadmin']
     return json.dumps(result)
 
