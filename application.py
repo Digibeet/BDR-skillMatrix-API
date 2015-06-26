@@ -217,10 +217,20 @@ def get_all_accounts():
     del result['BDRadmin']
     return json.dumps(result)
 
+@application.route('/user/<user>')
+@crossdomain(origin='*')
+def get_all_info_from_user(user):
+    cursor = mysql.connection.cursor()
+    query = ("SELECT user_name, password, email, phone, creation_date FROM accounts WHERE user_id = " + user)
+    cursor.execute(query)
+    result = {}
+    for name, password, email, phone, date in cursor:
+            result = {'name': name, 'email': email, 'phone': phone, 'date': date.strftime("%Y-%m-%d")}
+    return json.dumps(result)
+
 @application.route('/user/<user>/name')
 @crossdomain(origin='*')
 def get_name_from_user(user):
-    print ("getting name for user ", user)
     cursor = mysql.connection.cursor()
     query = ("SELECT user_name FROM accounts WHERE user_id = " + user)
     print query
