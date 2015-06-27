@@ -89,14 +89,14 @@ add_skill = ("INSERT INTO skillMatrix "
     "(skill_name, skill_group_name) "
     "VALUES (%s, %s)")
 
+delete_skill = ("DELETE FROM skillMatrix "
+    "WHERE skill_name=%s AND skill_group_name=%s; ")
+
 def add_account(parameters):
     print parameters
     query = "INSERT INTO accounts (user_id, user_name, password, email, phone, creation_date) VALUES ("+parameters['id']+", '"+parameters['name']+"', '"+parameters['password']+"', '"+parameters['email']+"', '"+parameters['phone']+"', '"+parameters['date']+"')"
     print query
     return query
-
-delete_skill = ("DELETE FROM skillMatrix "
-    "WHERE skill_name=%s AND skill_group_name=%s; ")
 
 def delete_account(account):
     query = "DELETE FROM accounts WHERE user_name='" +account+"'"
@@ -169,6 +169,16 @@ def delete_account_from_accounts(account):
     cursor.execute(delete_account(account))
     conn.commit()
     return ("Account " + account + " deleted")
+
+@application.route('/editAccount/<account>/phone/<phone>/email/<email>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def edit_phone_and_email_in_account(account, phone, email):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    query = ("UPDATE accounts SET phone='"+phone+"', email='"+email+"' WHERE user_id="+account)
+    cursor.execute(query)
+    conn.commit()
+    return("Account " + account + " updated")
 
 @application.route('/skills')
 @crossdomain(origin='*')
