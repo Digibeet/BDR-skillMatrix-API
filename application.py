@@ -180,6 +180,16 @@ def edit_phone_and_email_in_account(account, phone, email):
     conn.commit()
     return("Account " + account + " updated")
 
+@application.route('/editAccount/<account>/password/<password>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def edit_password_in_account(account, password):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    query = ("UPDATE accounts SET password='"+password+"' WHERE user_id="+account)
+    cursor.execute(query)
+    conn.commit()
+    return("Account " + account + " updated")
+
 @application.route('/skills')
 @crossdomain(origin='*')
 def get_all_skills_per_group():
