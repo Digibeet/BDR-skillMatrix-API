@@ -114,6 +114,11 @@ def add_scoring(parameters):
     print query
     return query
 
+def add_remark(parameters):
+    query = "INSERT INTO remarks (user_id, remark) VALUES (" + parameters['user_id'] + ",'" + parameters['remark']+"') ON DUPLICATE KEY UPDATE remark = '" + parameters['remark']+"'"
+    print query
+    return query
+
 @application.route('/skills/score/<skill>/<score>/<account>', methods=['Get', 'POST'])
 @crossdomain(origin='*')
 def score_skill_for_account(skill, score, account):
@@ -149,6 +154,15 @@ def add_skill_to_matrix(group, skill):
     conn = mysql.connection
     cursor = conn.cursor()
     cursor.execute(add_skill, (skill, group))
+    conn.commit()
+    return ("OK")
+
+@application.route('/addRemark/<account>/<remark>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def add_remark_to_remarks(account, remark):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute(add_remark({"user_id": account, "remark": remark}))
     conn.commit()
     return ("OK")
 
@@ -189,6 +203,16 @@ def edit_password_in_account(account, password):
     cursor.execute(query)
     conn.commit()
     return("Account " + account + " updated")
+
+@application.route('/editAccount/<account>/remark/<remark>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def remark_in_remarks(account, remark):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    query = ("UPDATE remarks SET remark='"+remark+"' WHERE user_id="+account)
+    cursor.execute(query)
+    conn.commit()
+    return("Remark for account " + account + " updated")
 
 @application.route('/skills')
 @crossdomain(origin='*')
@@ -259,6 +283,19 @@ def get_name_from_user(user):
     for name in cursor:
         result = {'name': name[0]}
     return json.dumps(result)
+
+@application.route('/user/<user>/remark')
+@crossdomain(origin='*')
+def get_remark_from_user(user):
+    cursor = mysql.connection.cursor()
+    query = ("SELECT remark FROM remarks WHERE user_id = " + user)
+    print query
+    cursor.execute(query)
+    result = {}
+    for remark in cursor:
+        result = {'remark': remark[0]}
+    return json.dumps(result)
+
 
 @application.route('/user/<user>/password/<password>')
 @crossdomain(origin='*')
