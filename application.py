@@ -253,21 +253,31 @@ def get_all_skills_per_group_from_user(user):
     matrixCursor = mysql.connection.cursor()
     query = ("SELECT * FROM skillMatrix")
     matrixCursor.execute(query)
-    result = defaultdict(list)
+    skills = defaultdict(dict)
     for name, group in matrixCursor:
         skillCursor = mysql.connection.cursor()
         query = ("SELECT * FROM scorings "
                  "WHERE user_id = " + user + " AND skill_name = '" + name + "'")
-        print (query)
         skillCursor.execute(query)
         scoring = skillCursor.fetchall()
         if len(scoring) == 0:
-            result[group].append({"skill": name, "score": 0})
+            skills[group][name] = {"score": 0}
         else:
-            result[group].append({"skill": name, "score": scoring[0][2]})
+            skills[group][name] = {"score": scoring[0][2]}
         skillCursor.close()
+        
+        exampleCursor = mysql.connection.cursor()
+        query = ("SELECT * FROM examples "
+                 "WHERE skill_name = '" + name + "'")
+        exampleCursor.execute(query)
+        examples = skillCursor.fetchall()
+        if len(scoring) == 0:
+            skills[group][name]["examples"] = ""
+        else:
+            skills[group][name]["examples"] = examples
+        exampleCursor.close()
     matrixCursor.close()
-    return json.dumps(result)
+    return json.dumps(skills)
 
 @application.route('/accounts')
 @crossdomain(origin='*')
