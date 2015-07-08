@@ -246,6 +246,27 @@ def get_all_skills_per_group():
     cursor.close()
     return json.dumps(result)
 
+@application.route('/skills/examples')
+@crossdomain(origin='*')
+def get_all_skills_per_group_with_examples():
+    cursor = mysql.connection.cursor()
+    query = ("SELECT skill_group_name, skill_name FROM skillMatrix")
+    cursor.execute(query)
+    skills = defaultdict(dict)
+    for group, name in cursor:
+        exampleCursor = mysql.connection.cursor()
+        query = ("SELECT examples FROM examples "
+                 "WHERE skill_name = '" + name + "'")
+        exampleCursor.execute(query)
+        examples = exampleCursor.fetchall()
+        if len(examples) == 0:
+            skills[group][name] = ""
+        else:
+            skills[group][name] = examples[0][0]
+        exampleCursor.close()
+    cursor.close()
+    return json.dumps(skills)
+
 @application.route('/skills/<user>')
 @crossdomain(origin='*')
 def get_all_skills_per_group_from_user(user):
