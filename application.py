@@ -267,14 +267,16 @@ def get_all_skills_per_group_from_user(user):
         skillCursor.close()
         
         exampleCursor = mysql.connection.cursor()
-        query = ("SELECT * FROM examples "
+        query = ("SELECT examples FROM examples "
                  "WHERE skill_name = '" + name + "'")
         exampleCursor.execute(query)
-        examples = skillCursor.fetchall()
-        if len(scoring) == 0:
+        examples = exampleCursor.fetchall()
+        if len(examples) == 0:
             skills[group][name]["examples"] = ""
         else:
-            skills[group][name]["examples"] = examples
+            print "TEST >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            print examples
+            skills[group][name]["examples"] = examples[0][0]
         exampleCursor.close()
     matrixCursor.close()
     return json.dumps(skills)
