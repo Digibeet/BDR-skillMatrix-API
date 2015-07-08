@@ -93,9 +93,7 @@ delete_skill = ("DELETE FROM skillMatrix "
     "WHERE skill_name=%s AND skill_group_name=%s; ")
 
 def add_account(parameters):
-    print parameters
     query = "INSERT INTO accounts (user_id, user_name, password, email, phone, creation_date) VALUES ("+parameters['id']+", '"+parameters['name']+"', '"+parameters['password']+"', '"+parameters['email']+"', '"+parameters['phone']+"', '"+parameters['date']+"')"
-    print query
     return query
 
 def delete_account(account):
@@ -106,17 +104,18 @@ def add_skill_group(parameters):
     query =("INSERT INTO skillGroups "
     "(skill_group_name) "
     "VALUES ('" + parameters['group'] + "')")
-    print query
     return query
 
 def add_scoring(parameters):
     query = "INSERT INTO scorings (user_id, skill_name, score, score_date) VALUES (" + parameters['user_id'] + ",'" + parameters['skill_name'] + "'," + parameters['score'] +",'"+parameters['date']+ "') ON DUPLICATE KEY UPDATE score = " + parameters['score']
-    print query
     return query
 
 def add_remark(parameters):
     query = "INSERT INTO remarks (user_id, remark) VALUES (" + parameters['user_id'] + ",'" + parameters['remark']+"') ON DUPLICATE KEY UPDATE remark = '" + parameters['remark']+"'"
-    print query
+    return query
+
+def add_examples(parameters):
+    query = "INSERT INTO examples (skill_name, examples) VALUES ('" + parameters['skill_name'] + "','" + parameters['examples']+"') ON DUPLICATE KEY UPDATE examples = '" + parameters['examples']+"'"
     return query
 
 @application.route('/skills/score/<skill>/<score>/<account>', methods=['Get', 'POST'])
@@ -163,6 +162,15 @@ def add_remark_to_remarks(account, remark):
     conn = mysql.connection
     cursor = conn.cursor()
     cursor.execute(add_remark({"user_id": account, "remark": remark}))
+    conn.commit()
+    return ("OK")
+
+@application.route('/addExamples/<skill>/<examples>', methods=['Get', 'POST'])
+@crossdomain(origin='*')
+def add_examples_to_skill(skill, examples):
+    conn = mysql.connection
+    cursor = conn.cursor()
+    cursor.execute(add_examples({"skill_name": skill, "examples": examples}))
     conn.commit()
     return ("OK")
 
@@ -213,6 +221,18 @@ def remark_in_remarks(account, remark):
     cursor.execute(query)
     conn.commit()
     return("Remark for account " + account + " updated")
+
+@application.route('/examples')
+@crossdomain(origin='*')
+def get_all_examples_per_skill():
+    cursor = mysql.connection.cursor()
+    query = ("SELECT * FROM examples")
+    cursor.execute(query)
+    result = defaultdict(dict)
+    for skill, examples in cursor:
+        result[skill] = examples
+    cursor.close()
+    return json.dumps(result)
 
 @application.route('/skills')
 @crossdomain(origin='*')
